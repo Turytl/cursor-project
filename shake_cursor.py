@@ -40,7 +40,7 @@ def reset_cursor():
 
 prev_pos = pyautogui.position()
 last_shake_time = 0
-shake_threshold = 1500  # Pixels per second
+shake_threshold = 7500  # Pixels per second
 
 try:
     print("[DEBUG] Starting mouse shake detection loop...")
@@ -58,7 +58,7 @@ try:
             last_shake_time = time.time()
             set_custom_cursor(BIG_CURSOR_PATH)
 
-        if time.time() - last_shake_time > 1:
+        if time.time() - last_shake_time > 0.5:
             reset_cursor()
 
         prev_pos = curr_pos

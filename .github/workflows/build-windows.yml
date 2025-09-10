@@ -23,7 +23,7 @@ jobs:
 
     - name: Build EXE
       run: |
-        pyinstaller --onefile --add-data "cursor.cur;." shake_cursor.py
+        pyinstaller --onefile --noconsole --add-data "cursor.cur;." shake_cursor.py
 
     - name: Upload EXE
       uses: actions/upload-artifact@v4
