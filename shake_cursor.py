@@ -32,7 +32,7 @@ def reset_cursor():
 
 prev_pos = get_cursor_pos()
 last_shake_time = 0
-shake_threshold = 3000  # Pixels per second
+shake_threshold = 3500  # Pixels per second
 custom_active = False
 
 try:
