@@ -32,7 +32,7 @@ def reset_cursor():
 
 prev_pos = get_cursor_pos()
 last_shake_time = 0
-shake_threshold = 5500  # Pixels per second
+shake_threshold = 3000  # Pixels per second
 custom_active = False
 
 try:
@@ -49,7 +49,7 @@ try:
                 set_custom_cursor(BIG_CURSOR_PATH)
                 custom_active = True
 
-        elif time.time() - last_shake_time > 0.5:
+        elif time.time() - last_shake_time > 1:
             if custom_active:
                 reset_cursor()
                 custom_active = False
