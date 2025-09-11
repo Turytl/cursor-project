@@ -32,12 +32,12 @@ def reset_cursor():
 
 prev_pos = get_cursor_pos()
 last_shake_time = 0
-shake_threshold = 5000  # Pixels per second
+shake_threshold = 5500  # Pixels per second
 custom_active = False
 
 try:
     while True:
-        time.sleep(0.2)  # Increased interval
+        time.sleep(0.15)  # Increased interval
         curr_pos = get_cursor_pos()
         dx = curr_pos[0] - prev_pos[0]
         dy = curr_pos[1] - prev_pos[1]
