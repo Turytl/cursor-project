@@ -19,11 +19,11 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install pyautogui pywin32 pyinstaller
+        pip install pyinstaller
 
     - name: Build EXE
       run: |
-        pyinstaller --onefile --noconsole --add-data "cursor.cur;." shake_cursor.py
+        pyinstaller --onefile --noconsole --add-data "cursor.cur;." --exclude-module pyautogui shake_cursor.py
 
     - name: Upload EXE
       uses: actions/upload-artifact@v4

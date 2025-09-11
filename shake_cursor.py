@@ -1,10 +1,14 @@
 import time
 import ctypes
-import pyautogui
 import os
 import sys
 
-# Get path to bundled cursor file
+class POINT(ctypes.Structure):
+    _fields_ = [("x", ctypes.c_long), ("y", ctypes.c_long)]
+
+SPI_SETCURSORS = 0x0057
+SPIF_SENDCHANGE = 0x02
+
 if getattr(sys, 'frozen', False):
     base_path = sys._MEIPASS
 else:
@@ -12,58 +16,45 @@ else:
 
 BIG_CURSOR_PATH = os.path.join(base_path, "cursor.cur")
 
-SPI_SETCURSORS = 0x0057
-SPIF_SENDCHANGE = 0x02
+def get_cursor_pos():
+    pt = POINT()
+    ctypes.windll.user32.GetCursorPos(ctypes.byref(pt))
+    return pt.x, pt.y
 
 def set_custom_cursor(cur_path):
-    print(f"[DEBUG] Trying to set custom cursor: {cur_path}")
     if os.path.exists(cur_path):
-        hCursor = ctypes.windll.user32.LoadImageW(
-            0, cur_path, 2, 0, 0, 0x00000010
-        )
-        if not hCursor:
-            print("[ERROR] Failed to load cursor image.")
-            return
-        result = ctypes.windll.user32.SetSystemCursor(hCursor, 32512)
-        if not result:
-            print("[ERROR] Failed to set custom cursor.")
-        else:
-            print("[DEBUG] Custom cursor set successfully.")
-    else:
-        print(f"[ERROR] Cursor file not found: {cur_path}")
+        hCursor = ctypes.windll.user32.LoadImageW(0, cur_path, 2, 0, 0, 0x00000010)
+        if hCursor:
+            ctypes.windll.user32.SetSystemCursor(hCursor, 32512)
 
 def reset_cursor():
-    print("[DEBUG] Resetting cursor to default.")
-    result = ctypes.windll.user32.SystemParametersInfoW(SPI_SETCURSORS, 0, 0, SPIF_SENDCHANGE)
-    if not result:
-        print("[ERROR] Failed to reset system cursors.")
+    ctypes.windll.user32.SystemParametersInfoW(SPI_SETCURSORS, 0, 0, SPIF_SENDCHANGE)
 
-prev_pos = pyautogui.position()
+prev_pos = get_cursor_pos()
 last_shake_time = 0
-shake_threshold = 7500  # Pixels per second
+shake_threshold = 5000  # Pixels per second
+custom_active = False
 
 try:
-    print("[DEBUG] Starting mouse shake detection loop...")
     while True:
-        time.sleep(0.05)
-        curr_pos = pyautogui.position()
+        time.sleep(0.2)  # Increased interval
+        curr_pos = get_cursor_pos()
         dx = curr_pos[0] - prev_pos[0]
         dy = curr_pos[1] - prev_pos[1]
-        speed = (dx ** 2 + dy ** 2) ** 0.5 / 0.05
-
-        print(f"[DEBUG] Mouse speed: {speed:.2f}")
+        speed = (dx ** 2 + dy ** 2) ** 0.5 / 0.15
 
         if speed > shake_threshold:
-            print("[DEBUG] Shake detected.")
             last_shake_time = time.time()
-            set_custom_cursor(BIG_CURSOR_PATH)
+            if not custom_active:
+                set_custom_cursor(BIG_CURSOR_PATH)
+                custom_active = True
 
-        if time.time() - last_shake_time > 0.5:
-            reset_cursor()
+        elif time.time() - last_shake_time > 0.5:
+            if custom_active:
+                reset_cursor()
+                custom_active = False
 
         prev_pos = curr_pos
 
 except KeyboardInterrupt:
-    print("[DEBUG] Keyboard interrupt caught.")
     reset_cursor()
-    print("[DEBUG] Exiting cleanly.")
